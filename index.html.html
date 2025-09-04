@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام تسجيل الحضور والمغادرة - متوسطة ضياء العلم</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            text-align: center;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #1e3c72;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #2a5298;
+            font-size: 1.2rem;
+        }
+        
+        .developer {
+            margin-top: 10px;
+            font-style: italic;
+            color: #666;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        .tab.active {
+            background-color: #2a5298;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+            width: 100%;
+        }
+        
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .main-content {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .card {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .card-title {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #2a5298;
+            text-align: center;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1e3c72;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        button {
+            background-color: #2a5298;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background-color: #1e3c72;
+        }
+        
+        .attendance-list {
+            list-style-type: none;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .attendance-list li {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .attendance-list li:nth-child(odd) {
+            background-color: #f9f9f9;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .present {
+            background-color: #e6f7ee;
+            color: #0c9770;
+        }
+        
+        .absent {
+            background-color: #ffe6e6;
+            color: #d93025;
+        }
+        
+        .time {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .stat-item {
+            padding: 15px;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+        
+        .stat-label {
+            color: #666;
+        }
+        
+        .qr-section {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .ip-info {
+            background-color: #e6f7ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .ip-address {
+            font-weight: bold;
+            color: #1e3c72;
+        }
+        
+        .success-alert {
+            background-color: #e6f7ee;
+            color: #0c9770;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            text-align: center;
+            display: none;
+        }
+        
+        .error-alert {
+            background-color: #ffe6e6;
+            color: #d93025;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            text-align: center;
+            display: none;
+        }
+        
+        .admin-panel {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .teachers-list {
+            margin-top: 20px;
+        }
+        
+        .teacher-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .login-form {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>نظام تسجيل الحضور والمغادرة</h1>
+            <p class="subtitle">متوسطة ضياء العلم الأهلية للبنين</p>
+            <p class="developer">تم التطوير بواسطة: الأستاذ سيف علي</p>
+        </header>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('teacherTab')">تسجيل الحضور</div>
+            <div class="tab" onclick="switchTab('adminTab')">لوحة التحكم</div>
+        </div>
+        
+        <div class="tab-content active" id="teacherTab">
+            <div class="success-alert" id="successAlert">
+                <i class="fas fa-check-circle"></i> تم تسجيل الحضور بنجاح
+            </div>
+            
+            <div class="error-alert" id="errorAlert">
+                <i class="fas fa-exclamation-circle"></i> يجب أن تكون متصلاً بشبكة المدرسة للتسجيل
+            </div>
+            
+            <div class="main-content">
+                <div class="card">
+                    <h2 class="card-title">تسجيل الحضور والمغادرة</h2>
+                    
+                    <div class="input-group">
+                        <label for="teacherName">اسم المدرس</label>
+                        <select id="teacherName">
+                            <option value="">اختر اسم المدرس</option>
+                            <!-- سيتم ملء هذا القائمة من localStorage -->
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="attendanceType">نوع التسجيل</label>
+                        <select id="attendanceType">
+                            <option value="in">حضور</option>
+                            <option value="out">انصراف</option>
+                        </select>
+                    </div>
+                    
+                    <button onclick="recordAttendance()">تسجيل</button>
+                    
+                    <div class="ip-info">
+                        <p>عنوان IP الحالي: <span class="ip-address" id="ipAddress">جاري التحقق...</span></p>
+                        <p>حالة الاتصال بشبكة المدرسة: <span id="networkStatus">جاري التحقق...</span></p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2 class="card-title">سجل الحضور اليوم</h2>
+                    
+                    <div class="stats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="presentCount">0</div>
+                            <div class="stat-label">الحضور</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="absentCount">0</div>
+                            <div class="stat-label">لم يحضروا بعد</div>
+                        </div>
+                    </div>
+                    
+                    <ul class="attendance-list" id="attendanceList">
+                        <!-- سيتم ملء هذه القائمة تلقائياً -->
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card qr-section">
+                <h2 class="card-title">باركود التسجيل</h2>
+                <p>امسح الباركود للتسجيل السريع (نفس الباركود للجميع)</p>
+                
+                <div class="qr-code">
+                    <div style="text-align: center;">
+                        <div style="font-size: 80px; margin-bottom: 10px;"><i class="fas fa-qrcode"></i></div>
+                        <div style="font-family: monospace;">DIA-ALULUM-2023</div>
+                    </div>
+                </div>
+                
+                <p>هذا الباركود يعمل فقط داخل شبكة المدرسة</p>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="adminTab">
+            <div id="adminLogin">
+                <div class="card">
+                    <h2 class="card-title">دخول المشرفين</h2>
+                    
+                    <div class="input-group">
+                        <label for="adminUsername">اسم المستخدم</label>
+                        <input type="text" id="adminUsername" placeholder="أدخل اسم المستخدم">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="adminPassword">كلمة المرور</label>
+                        <input type="password" id="adminPassword" placeholder="أدخل كلمة المرور">
+                    </div>
+                    
+                    <button onclick="adminLogin()">دخول</button>
+                </div>
+            </div>
+            
+            <div id="adminPanel" style="display: none;">
+                <div class="card">
+                    <h2 class="card-title">لوحة تحكم المسؤول</h2>
+                    <p style="text-align: center; color: #666;">مرحباً، <span id="adminName">المشرف</span></p>
+                    
+                    <div class="input-group">
+                        <label for="newTeacherName">إضافة مدرس جديد</label>
+                        <input type="text" id="newTeacherName" placeholder="اسم المدرس بالكامل">
+                    </div>
+                    
+                    <button onclick="addTeacher()">إضافة مدرس</button>
+                    
+                    <div class="teachers-list">
+                        <h3>قائمة المدرسين</h3>
+                        <div id="teachersList">
+                            <!-- سيتم ملء هذه القائمة تلقائياً -->
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <button onclick="exportData()" style="background-color: #0c9770;">تصدير البيانات (Excel)</button>
+                        <button onclick="clearAllData()" style="background-color: #d93025;">مسح جميع البيانات</button>
+                        <button onclick="adminLogout()" style="background-color: #666;">تسجيل الخروج</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2 class="card-title">تقارير الحضور</h2>
+                    <div class="input-group">
+                        <label for="reportDate">اختر التاريخ</label>
+                        <input type="date" id="reportDate">
+                    </div>
+                    
+                    <button onclick="generateReport()">عرض التقرير</button>
+                    
+                    <div id="reportResults">
+                        <!-- سيتم عرض التقارير هنا -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        نظام تسجيل الحضور والمغادرة - متوسطة ضياء العلم الأهلية للبنين &copy; 2023
+    </footer>
+
+    <script>
+        // بيانات التطبيق
+        let teachers = JSON.parse(localStorage.getItem('teachers')) || [];
+        let attendanceRecords = JSON.parse(localStorage.getItem('attendance')) || [];
+        let isAdminLoggedIn = false;
+        
+        // معلومات المشرفين - تم التصحيح
+        const adminUsers = [
+            { username: "admin", password: "password", name: "مدير النظام" },
+            { username: "dia", password: "dia@123", name: "مشرف المدرسة" },
+            { username: "saif", password: "saif@2023", name: "الأستاذ سيف علي" }
+        ];
+        
+        // تهيئة التطبيق
+        document.addEventListener('DOMContentLoaded', function() {
+            initApp();
+            updateIPInfo();
+            loadTeachersList();
+            loadAttendanceList();
+            
+            // التحقق من حالة تسجيل الدخول
+            checkAdminStatus();
+        });
+        
+        // تهيئة التطبيق
+        function initApp() {
+            // إذا لم تكن هناك بيانات، أضف بعض المدرسين الافتراضيين
+            if (teachers.length === 0) {
+                teachers = [
+                    { id: 1, name: "أ. أحمد محمد" },
+                    { id: 2, name: "أ. سارة عبدالله" },
+                    { id: 3, name: "أ. خالد سالم" }
+                ];
+                localStorage.setItem('teachers', JSON.stringify(teachers));
+            }
+            
+            updateStats();
+        }
+        
+        // التحقق من حالة تسجيل الدخول
+        function checkAdminStatus() {
+            const savedLogin = localStorage.getItem('adminLogin');
+            if (savedLogin) {
+                const adminData = JSON.parse(savedLogin);
+                if (adminData.loggedIn && adminData.expiry > Date.now()) {
+                    isAdminLoggedIn = true;
+                    showAdminPanel(adminData.username);
+                }
+            }
+        }
+        
+        // تحويل بين واجهة المدرسين ولوحة التحكم
+        function switchTab(tabId) {
+            if (tabId === 'adminTab' && !isAdminLoggedIn) {
+                // إظهار واجهة تسجيل الدخول للمشرفين
+                document.getElementById('adminLogin').style.display = 'block';
+                document.getElementById('adminPanel').style.display = 'none';
+            }
+            
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`.tab:nth-child(${tabId === 'teacherTab' ? 1 : 2})`).classList.add('active');
+        }
+        
+        // محاكاة الحصول على عنوان IP
+        function getIPAddress() {
+            // في التطبيق الحقيقي، ستحصل على IP المستخدم من الخادم
+            // هنا نقوم بمحاكاة عنوان IP عشوائي
+            const schoolIPPrefix = '192.168.1';
+            const randomPart = Math.floor(Math.random() * 100) + 1;
+            return `${schoolIPPrefix}.${randomPart}`;
+        }
+        
+        // التحقق من اتصال شبكة المدرسة
+        function checkSchoolNetwork(ip) {
+            // في التطبيق الحقيقي، ستحقق إذا كان IP ينتمي لشبكة المدرسة
+            // هنا نقوم بمحاكاة أن العناوين التي تبدأ بـ 192.168.1 هي شبكة المدرسة
+            return ip.startsWith('192.168.1');
+        }
+        
+        // تحديث معلومات IP وعرضها
+        function updateIPInfo() {
+            const ip = getIPAddress();
+            const isSchoolNetwork = checkSchoolNetwork(ip);
+            
+            document.getElementById('ipAddress').textContent = ip;
+            document.getElementById('networkStatus').textContent = isSchoolNetwork ? 
+                'متصل بشبكة المدرسة ✓' : 'غير متصل بشبكة المدرسة ✗';
+            
+            document.getElementById('networkStatus').style.color = isSchoolNetwork ? '#0c9770' : '#d93025';
+            
+            return isSchoolNetwork;
+        }
+        
+        // تحميل قائمة المدرسين
+        function loadTeachersList() {
+            const teacherSelect = document.getElementById('teacherName');
+            teacherSelect.innerHTML = '<option value="">اختر اسم المدرس</option>';
+            
+            teachers.forEach(teacher => {
+                const option = document.createElement('option');
+                option.value = teacher.id;
+                option.textContent = teacher.name;
+                teacherSelect.appendChild(option);
+            });
+        }
+        
+        // تحميل قائمة المدرسين في لوحة التحكم
+        function loadAdminTeachersList() {
+            const teachersList = document.getElementById('teachersList');
+            teachersList.innerHTML = '';
+            
+            if (teachers.length === 0) {
+                teachersList.innerHTML = '<p>لا يوجد مدرسون مضافون بعد</p>';
+                return;
+            }
+            
+            teachers.forEach(teacher => {
+                const teacherItem = document.createElement('div');
+                teacherItem.className = 'teacher-item';
+                teacherItem.innerHTML = `
+                    <span>${teacher.name}</span>
+                    <button onclick="deleteTeacher(${teacher.id})" style="background-color: #d93025; padding: 5px 10px; font-size: 14px;">حذف</button>
+                `;
+                teachersList.appendChild(teacherItem);
+            });
+        }
+        
+        // تحميل سجل الحضور
+        function loadAttendanceList() {
+            const attendanceList = document.getElementById('attendanceList');
+            attendanceList.innerHTML = '';
+            
+            const today = new Date().toLocaleDateString('en-CA');
+            const todayRecords = attendanceRecords.filter(record => record.date === today);
+            
+            if (todayRecords.length === 0) {
+                attendanceList.innerHTML = '<li>لا توجد سجلات حضور لهذا اليوم بعد</li>';
+                return;
+            }
+            
+            todayRecords.forEach(record => {
+                const teacher = teachers.find(t => t.id == record.teacherId);
+                if (teacher) {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <div>
+                            <span>${teacher.name}</span>
+                            <div class="time">${record.time} - ${record.type === 'in' ? 'حضور' : 'انصراف'}</div>
+                        </div>
+                        <span class="status ${record.type === 'in' ? 'present' : 'absent'}">
+                            ${record.type === 'in' ? 'حضور' : 'انصراف'}
+                        </span>
+                    `;
+                    attendanceList.appendChild(li);
+                }
+            });
+        }
+        
+        // تسجيل الدخول للمشرفين
+        function adminLogin() {
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+            
+            const admin = adminUsers.find(a => a.username === username && a.password === password);
+            
+            if (admin) {
+                isAdminLoggedIn = true;
+                
+                // حفظ حالة تسجيل الدخول (تنتهي بعد 8 ساعات)
+                const loginData = {
+                    loggedIn: true,
+                    username: admin.username,
+                    expiry: Date.now() + (8 * 60 * 60 * 1000)
+                };
+                localStorage.setItem('adminLogin', JSON.stringify(loginData));
+                
+                showAdminPanel(admin.name);
+            } else {
+                alert('اسم المستخدم أو كلمة المرور غير صحيحة');
+                // إظهار معلومات المساعدة للمستخدم
+                alert('معلومات المساعدة:\nاسم المستخدم: admin\nكلمة المرور: password\n\nأو\nاسم المستخدم: dia\nكلمة المرور: dia@123\n\nأو\nاسم المستخدم: saif\nكلمة المرور: saif@2023');
+            }
+        }
+        
+        // تسجيل الخروج
+        function adminLogout() {
+            isAdminLoggedIn = false;
+            localStorage.removeItem('adminLogin');
+            
+            document.getElementById('adminLogin').style.display = 'block';
+            document.getElementById('adminPanel').style.display = 'none';
+            
+            // إعادة تعيين حقول التسجيل
+            document.getElementById('adminUsername').value = '';
+            document.getElementById('adminPassword').value = '';
+        }
+        
+        // عرض لوحة التحكم
+        function showAdminPanel(adminName) {
+            document.getElementById('adminLogin').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            document.getElementById('adminName').textContent = adminName;
+            
+            loadAdminTeachersList();
+        }
+        
+        // تسجيل الحضور/الانصراف
+        function recordAttendance() {
+            const teacherSelect = document.getElementById('teacherName');
+            const attendanceType = document.getElementById('attendanceType').value;
+            const teacherId = teacherSelect.value;
+            
+            if (!teacherId) {
+                alert('يرجى اختيار اسم المدرس');
+                return;
+            }
+            
+            const isSchoolNetwork = updateIPInfo();
+            
+            if (!isSchoolNetwork) {
+                document.getElementById('errorAlert').style.display = 'block';
+                document.getElementById('successAlert').style.display = 'none';
+                return;
+            }
+            
+            // إذا كان متصلاً بشبكة المدرسة، تتم عملية التسجيل
+            const now = new Date();
+            const record = {
+                teacherId: parseInt(teacherId),
+                type: attendanceType,
+                date: now.toLocaleDateString('en-CA'),
+                time: now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
+                timestamp: now.getTime()
+            };
+            
+            attendanceRecords.push(record);
+            localStorage.setItem('attendance', JSON.stringify(attendanceRecords));
+            
+            document.getElementById('successAlert').style.display = 'block';
+            document.getElementById('errorAlert').style.display = 'none';
+            
+            // تحديث القائمة والإحصائيات
+            loadAttendanceList();
+            updateStats();
+            
+            // إعادة تعيين النموذج
+            teacherSelect.value = '';
+            
+            // إخفاء التنبيه بعد 3 ثوان
+            setTimeout(() => {
+                document.getElementById('successAlert').style.display = 'none';
+            }, 3000);
+        }
+        
+        // تحديث الإحصائيات
+        function updateStats() {
+            const today = new Date().toLocaleDateString('en-CA');
+            const todayRecords = attendanceRecords.filter(record => record.date === today && record.type === 'in');
+            
+            document.getElementById('presentCount').textContent = todayRecords.length;
+            document.getElementById('absentCount').textContent = teachers.length - todayRecords.length;
+        }
+        
+        // إضافة مدرس جديد
+        function addTeacher() {
+            if (!isAdminLoggedIn) {
+                alert('يجب تسجيل الدخول كمسؤول لإضافة مدرس');
+                return;
+            }
+            
+            const newTeacherName = document.getElementById('newTeacherName').value.trim();
+            
+            if (!newTeacherName) {
+                alert('يرجى إدخال اسم المدرس');
+                return;
+            }
+            
+            if (teachers.length >= 25) {
+                alert('لقد وصلت إلى الحد الأقصى لعدد المدرسين (25)');
+                return;
+            }
+            
+            const newTeacher = {
+                id: teachers.length > 0 ? Math.max(...teachers.map(t => t.id)) + 1 : 1,
+                name: newTeacherName
+            };
+            
+            teachers.push(newTeacher);
+            localStorage.setItem('teachers', JSON.stringify(teachers));
+            
+            document.getElementById('newTeacherName').value = '';
+            
+            loadTeachersList();
+            loadAdminTeachersList();
+            updateStats();
+            
+            alert('تم إضافة المدرس بنجاح');
+        }
+        
+        // حذف مدرس
+        function deleteTeacher(teacherId) {
+            if (!isAdminLoggedIn) {
+                alert('يجب تسجيل الدخول كمسؤول لحذف مدرس');
+                return;
+            }
+            
+            if (confirm('هل أنت متأكد من حذف هذا المدرس؟')) {
+                teachers = teachers.filter(teacher => teacher.id !== teacherId);
+                localStorage.setItem('teachers', JSON.stringify(teachers));
+                
+                loadTeachersList();
+                loadAdminTeachersList();
+                updateStats();
+                
+                alert('تم حذف المدرس بنجاح');
+            }
+        }
+        
+        // تصدير البيانات
+        function exportData() {
+            if (!isAdminLoggedIn) {
+                alert('يجب تسجيل الدخول كمسؤول لتصدير البيانات');
+                return;
+            }
+            
+            // في تطبيق حقيقي، هذا سينشئ ملف Excel للتحميل
+            alert('سيتم تصدير البيانات إلى ملف Excel. في التطبيق الكامل، هذا سيعمل مع الخادم');
+        }
+        
+        // إنشاء تقرير
+        function generateReport() {
+            if (!isAdminLoggedIn) {
+                alert('يجب تسجيل الدخول كمسؤول لإنشاء التقارير');
+                return;
+            }
+            
+            // في تطبيق حقيقي، هذا سيعرض تقريراً مفصلاً
+            alert('سيتم إنشاء تقرير مفصل. في التطبيق الكامل، هذا سيعمل مع الخادم');
+        }
+        
+        // مسح جميع البيانات
+        function clearAllData() {
+            if (!isAdminLoggedIn) {
+                alert('يجب تسجيل الدخول كمسؤول لمسح البيانات');
+                return;
+            }
+            
+            if (confirm('هل أنت متأكد من مسح جميع البيانات؟ لا يمكن التراجع عن هذا الإجراء!')) {
+                localStorage.removeItem('teachers');
+                localStorage.removeItem('attendance');
+                teachers = [];
+                attendanceRecords = [];
+                
+                loadTeachersList();
+                loadAdminTeachersList();
+                loadAttendanceList();
+                updateStats();
+                
+                alert('تم مسح جميع البيانات بنجاح');
+            }
+        }
+    </script>
+</body>
+</html>
